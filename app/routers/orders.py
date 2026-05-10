@@ -1,49 +1,126 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from ..dependencies import get_current_user
 
-from .. import models, schemas
-from ..database import get_db
+from app.services import order_service
+from app.schemas.order import CheckoutResponse
 
-router = APIRouter()
+from app.dependencies import get_current_user
+from app import models
+from app.database import get_db
+
+router = APIRouter(prefix="/orders", tags=["Orders"])
 
 
-
-@router.post("/orders")
-def create_order(
-    order: schemas.OrderCreate,
+# =========================
+# CHECKOUT (MAIN FLOW)
+# =========================
+@router.post("/checkout", response_model=CheckoutResponse)
+def checkout(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
+    order_id, total_price = order_service.checkout(db, current_user)
 
-    new_order = models.Order(user_id=current_user.id)
+    return {
+        "message": "Order placed successfully",
+        "order_id": order_id,
+        "total_price": total_price
+    }
 
-    db.add(new_order)
+
+# =========================
+# GET USER ORDERS
+# =========================
+@router.get("/my")
+def get_my_orders(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    orders = db.query(models.Order).filter(
+        models.Order.user_id == current_user.id
+    ).all()
+
+    result = []
+
+    for order in orders:
+        result.append({
+            "order_id": order.id,
+            "status": order.status,
+            "payment_status": order.payment_status,
+            "items": [
+                {
+                    "product_id": item.product_id,
+                    "quantity": item.quantity
+                }
+                for item in order.items
+            ]
+        })
+
+    return result
+
+
+# =========================
+# GET ALL ORDERS (ADMIN)
+# =========================
+@router.get("/")
+def get_all_orders(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    return db.query(models.Order).all()
+
+
+# =========================
+# UPDATE ORDER STATUS (ADMIN)
+# =========================
+@router.put("/{order_id}/status")
+def update_order_status(
+    order_id: int,
+    status: str,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    order = db.query(models.Order).filter(
+        models.Order.id == order_id
+    ).first()
+
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Only admin can update")
+
+    if order.payment_status != "success":
+        raise HTTPException(status_code=400, detail="Order not paid yet")
+
+    allowed_status = ["pending", "paid", "shipped", "delivered", "cancelled"]
+
+    if status not in allowed_status:
+        raise HTTPException(status_code=400, detail="Invalid status")
+
+    order.status = status
     db.commit()
-    db.refresh(new_order)
 
-    for item in order.items:
+    return {"message": f"Order status updated to {status}"}
 
-        product = db.query(models.Product).filter(
-            models.Product.id == item.product_id
-        ).first()
 
-        if not product:
-            raise HTTPException(status_code=404, detail="Product not found")
+# =========================
+# PAY FOR ORDER (USER)
+# =========================
+@router.post("/{order_id}/pay")
+def pay_for_order(
+    order_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    order = order_service.pay_for_order(db, current_user, order_id)
 
-        if product.stock < item.quantity:
-            raise HTTPException(status_code=400, detail="Not enough stock")
-
-        product.stock -= item.quantity
-
-        order_item = models.OrderItem(
-            order_id=new_order.id,
-            product_id=item.product_id,
-            quantity=item.quantity
-        )
-
-        db.add(order_item)
-
-    db.commit()
-
-    return {"message": "Order created successfully"}
+    return {
+        "message": "Payment successful",
+        "order_id": order.id,
+        "status": order.status,
+        "payment_status": order.payment_status
+    }

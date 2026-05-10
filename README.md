@@ -1,167 +1,106 @@
-# Ecommerce Backend API
+# 🛒 AI Ecommerce Platform
 
-![Python](https://img.shields.io/badge/Python-3.10-blue)
-![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green)
-![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-ORM-orange)
-![JWT](https://img.shields.io/badge/Auth-JWT-red)
-![License](https://img.shields.io/badge/License-MIT-lightgrey)
+A modern full-stack AI-powered ecommerce application built using React, FastAPI, SQLAlchemy, and Razorpay.
 
-Ecommerce Backend API
+---
 
-A backend REST API for a simple ecommerce system built using FastAPI and SQLAlchemy.
+# 🚀 Features
 
-This project demonstrates backend development concepts such as authentication, database relationships, and REST API design.
+## 👤 Authentication
 
-Features :
+- JWT Login & Registration
+- Secure password hashing
+- Role-based access (Admin/User)
 
-1. Authentication
+---
 
-   User registration
+## 🛍️ Ecommerce Features
 
-   Secure password hashing
+- Product listing
+- Product search
+- Category filters
+- Shopping cart
+- Orders management
+- Order summary
 
-   JWT-based login authentication
+---
 
-   Protected API routes
+## 🤖 AI Shopping Assistant
 
-2. Product Management
+- AI chatbot powered by Groq LLM
+- Product-aware recommendations
+- Smart shopping suggestions
+- Conversational ecommerce experience
 
-   Create products
+---
 
-   Retrieve all products
+## 💳 Payments
 
-   Retrieve a specific product
+- Razorpay payment integration
+- Dynamic order creation
+- Secure checkout flow
 
-   Update product details
+---
 
-   Delete products
+## 👨‍💼 Admin Dashboard
 
-3. Order System
+- Add products
+- Delete products
+- Manage inventory
+- Admin-only access
 
-   Create orders
+---
 
-   Multiple items per order
+# 🧠 Tech Stack
 
-   Inventory management (stock reduction)
+## Frontend
 
-   User-specific orders
+- React
+- React Router
+- CSS
+- React Toastify
 
-4. Tech Stack
+## Backend
 
-   FastAPI
+- FastAPI
+- SQLAlchemy
+- SQLite
+- JWT Authentication
 
-   SQLAlchemy
+## AI
 
-   SQLite
+- Groq API
+- Llama 3
 
-   Pydantic
+## Payments
 
-   JWT Authentication
+- Razorpay
 
-   Python
+---
 
-5. Project Structure:
+# 📸 Screenshots
 
-ecommerce-backend
-│
-├── app
-│ ├── routers
-│ │ ├── users.py
-│ │ ├── products.py
-│ │ └── orders.py
-│ │
-│ ├── models.py
-│ ├── schemas.py
-│ ├── database.py
-│ ├── security.py
-│ ├── dependencies.py
-│ └── main.py
-│
-├── requirements.txt
-└── README.md
-![alt text](image-1.png)
+## Login Page
 
-![alt text](image-2.png)
+![Login Page](screenshots/login.png)
 
-6. Database Schema :
+## Products Page
 
-A. Users:
+![Products Page](screenshots/products.png)
 
-id
-name
-email
-hashed_password
+## Admin Dashboard
 
-B. Products
+![Admin Dashboard](screenshots/admin.png)
 
-id
-name
-description
-price
-category
-stock
+## AI Chatbot
 
-C.Orders
+## ![AI Chatbot](screenshots/chatbot.png)
 
-id
-order_id
-product_id
-quantity
+# ⚙️ Installation
 
-7. API Endpoints
+## Backend
 
-Authentication
-POST /users
-POST /login
-GET /users/me
-
-Products
-POST /products
-GET /products
-GET /products/{product_id}
-PUT /products/{product_id}
-DELETE /products/{product_id}
-
-Orders
-POST /orders
-GET /orders
-GET /orders/{order_id}
-
-8. Running the Project
-   1 Install dependencies
-   pip install -r requirements.txt
-   2 Run the server
-   uvicorn app.main:app --reload
-   3 Open API documentation
-   FastAPI automatically generates interactive API docs.
-   http://127.0.0.1:8000/docs
-
-9. Learning Outcomes
-
-This project demonstrates:
-
-REST API development using FastAPI
-
-Database modeling with SQLAlchemy
-
-JWT authentication
-
-Dependency injection in FastAPI
-
-CRUD operations
-
-Relational database design
-
-10. Future Improvements:
-
-Possible improvements for this project include:
-
-Payment gateway integration
-
-Pagination for product listings
-
-Role-based access control
-
-Docker containerization
-
-Deployment on cloud platforms
+```bash
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
